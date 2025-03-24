@@ -1,6 +1,6 @@
 # serverlessapp-lambda-with-dyanamodb
 
-#### CRUD (Create, Read, Update, Delete) operations of DynamoDB & Invoke AWS Lambda using serverless framework.
+#### Create, get , query, scan operations of DynamoDB & Invoke AWS Lambda using serverless framework.
 
 
 #### Repo setup -
