@@ -1,0 +1,93 @@
+service: userserviceHandler
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: enter region
+  memorySize: 512
+  timeout: 10
+  environment:
+    USERS_TABLE: ${self:custom.${self:provider.stage}.userTableName}
+
+plugins:
+  - serverless-offline
+
+custom: 
+  DB_ADMIN_SM: database name
+  dev: 
+    userTableName: usersTable
+    SENDMESSAGEFUNCTION: lambda function name
+
+functions:
+  user:
+    handler: src/service/user.createUser
+    name: createUser-${self:provider.stage}
+    description: "creates new user"
+    environment: 
+      SENDMESSAGEFUNC: ${self:custom.${self:provider.stage}.SENDMESSAGEFUNCTION}
+    events:
+      - httpApi:
+          path: /user
+          method: post
+  getuser:
+    handler: src/service/user.getUser
+    description: "get new user"
+    events:
+      - httpApi:
+          path: /getuser
+          method: get
+  getUserbyCountryandCreatedAt:
+    handler: src/service/user.getUserbyCountryandCreatedAt
+    description: "search user"
+    environment:
+      TEST_VAR_FS: "TEST_VAR_FS_VALUE"
+    events:
+      - httpApi:
+          path: /getUserbyCountryandCreatedAt
+          method: post
+  getUserbyCountryandCreatedAtScan:
+    handler: src/service/user.getUserbyCountryandCreatedAtScan
+    description: "scan by user cond"
+    environment:
+      TEST_VAR_FS: "TEST_VAR_FS_VALUE"
+    events:
+      - httpApi:
+          path: /getUserbyCountryandCreatedAtScan
+          method: post
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.${self:provider.stage}.userTableName}
+        AttributeDefinitions:
+          - AttributeName: Email
+            AttributeType: S
+          - AttributeName: Country
+            AttributeType: S
+          - AttributeName: CreatedAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: Email
+            KeyType: HASH  # Partition key
+        BillingMode: PROVISIONED
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 10
+        GlobalSecondaryIndexes:
+          - IndexName: createdAtIndex  # Fixed typo in index name
+            KeySchema:
+              - AttributeName: Country
+                KeyType: HASH  # Partition key for GSI
+              - AttributeName: CreatedAt
+                KeyType: RANGE  # Sort key for GSI
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 5
+              WriteCapacityUnits: 10
+
+
