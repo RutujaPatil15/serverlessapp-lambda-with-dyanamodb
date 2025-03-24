@@ -1,7 +1,7 @@
 {
   "name": "serverlessapp-lambda-with-dyanamodb",
   "version": "1.0.0",
-  "description": "CRUD (Create, Read, Update, Delete) operations using DynamoDB, AWS Lambda in a serverless framework",
+  "description": "CRUD (Create, Read, Update, Delete) operations of DynamoDB, invoke AWS Lambda using serverless framework",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
